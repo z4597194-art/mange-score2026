@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mange Score 2026 - مدیریت فوتبال آنلاین</title>
+    <style>
+        :root {
+            --bg: #0a0e14;
+            --surface: #141b22;
+            --gold: #f0c040;
+            --accent: #00e676;
+            --accent2: #ff5252;
+            --text: #e0e0e0;
+            --text2: #aaa;
+            --border: #2a3040;
+            --card: #1a1f2b;
+            --win: #4caf50;
+            --lose: #f44336;
+            --draw: #ff9800;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            background-image:
+                radial-gradient(ellipse at top, rgba(240, 192, 64, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(0, 230, 118, 0.03) 0%, transparent 50%);
+        }
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 15px var(--gold);
+            }
+            50% {
+                box-shadow: 0 0 35px var(--gold), 0 0 60px rgba(240, 192, 64, 0.5);
+            }
+        }
+        @keyframes glow {
+            0%,
+            100% {
+                text-shadow: 0 0 10px var(--gold);
+            }
+            50% {
+                text-shadow: 0 0 30px var(--gold), 0 0 60px rgba(240, 192, 64, 0.7);
+            }
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        .btn {
+            padding: 14px 32px;
+            border: 2px solid var(--gold);
+            background: linear-gradient(135deg, #1a1f2b, #252d3a);
+            color: var(--gold);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            text-align: center;
+            display: inline-block;
+            min-width: 140px;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: scale(0.95);
+            background: var(--gold);
+            color: #000;
+        }
+        .btn.accent {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .btn.accent:active {
+            background: var(--accent);
+            color: #000;
+        }
+        .btn.danger {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+        .btn.danger:active {
+            background: var(--accent2);
+            color: #fff;
+        }
+        .btn.sm {
+            padding: 8px 18px;
+            font-size: 13px;
+            min-width: auto;
+            border-radius: 20px;
+        }
+        input,
+        select,
+        textarea {
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 16px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        textarea {
+            border-radius: 12px;
+            height: 80px;
+            resize: none;
+            text-align: right;
+            font-size: 12px;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(240, 192, 64, 0.3);
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1,
+        h2,
+        h3 {
+            color: var(--gold);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        h1 {
+            font-size: 28px;
+            animation: glow 3s infinite;
+        }
+        .splash-title {
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f0c040, #ff8c00, #f0c040);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s infinite;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .subtitle {
+            color: var(--accent);
+            font-size: 18px;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin: 15px auto;
+        }
+        .menu-item {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: var(--text);
+            font-size: 13px;
+            touch-action: manipulation;
+        }
+        .menu-item:active {
+            border-color: var(--gold);
+            transform: scale(0.95);
+            color: var(--gold);
+            box-shadow: 0 8px 25px rgba(240, 192, 64, 0.3);
+        }
+        .menu-item .icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        th,
+        td {
+            padding: 8px 4px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--surface);
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .win-mark {
+            color: var(--win);
+            font-weight: bold;
+        }
+        .lose-mark {
+            color: var(--lose);
+            font-weight: bold;
+        }
+        .draw-mark {
+            color: var(--draw);
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .badge-gold {
+            background: var(--gold);
+            color: #000;
+        }
+        .badge-accent {
+            background: var(--accent);
+            color: #000;
+        }
+        .badge-red {
+            background: var(--accent2);
+            color: #fff;
+        }
+        canvas {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            background: #fff;
+            touch-action: none;
+            max-width: 100%;
+        }
+        .spinner-wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid var(--gold);
+            position: relative;
+            overflow: hidden;
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow: 0 0 40px rgba(240, 192, 64, 0.4);
+            margin: 10px auto;
+        }
+        .spinner-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--accent2);
+            z-index: 10;
+            filter: drop-shadow(0 0 8px red);
+        }
+        .commentary-box {
+            background: #0d1117;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 70px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #ccc;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--gold);
+            flex-wrap: wrap;
+        }
+        .player-card {
+            display: inline-block;
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin: 4px;
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            min-width: 65px;
+            touch-action: manipulation;
+        }
+        .player-card:active {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(240, 192, 64, 0.3);
+            transform: scale(0.95);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            border: 2px solid var(--gold);
+            padding: 12px 25px;
+            border-radius: 30px;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+            font-weight: bold;
+            pointer-events: none;
+            font-size: 14px;
+            text-align: center;
+            max-width: 90vw;
+        }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .modal {
+            background: var(--card);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 20px;
+            width: 95vw;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        .overall-rating {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            color: #fff;
+            margin: 2px;
+        }
+        .ovr-high {
+            background: #00c853;
+        }
+        .ovr-mid {
+            background: #ff9800;
+        }
+        .ovr-low {
+            background: #e53935;
+        }
+        @media (max-width: 400px) {
+            .splash-title {
+                font-size: 26px;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .menu-item {
+                padding: 14px 6px;
+                font-size: 11px;
+            }
+            .menu-item .icon {
+                font-size: 28px;
+            }
+            .scoreboard {
+                font-size: 22px;
+                gap: 8px;
+            }
+            table {
+                font-size: 10px;
+            }
+            th,
+            td {
+                padding: 5px 2px;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- اسپلش اسکرین -->
+    <div class="screen active" id="splashScreen">
+        <div style="text-align:center;">
+            <div class="splash-title">⚽ MANGE SCORE 2026 ⚽</div>
+            <p class="subtitle" style="margin-top:15px;color:#ff8c00;">تلاش ۲۴ ماهه گروه Gamer</p>
+            <p style="color:var(--text2);margin:15px 0;">🏆 مدیریت تیم فوتبال آنلاین 🏆</p>
+            <button class="btn pulse-animation" onclick="checkSaveCode()" style="font-size:18px;">
+                🎮 شروع بازی
+            </button>
+            <button class="btn sm" onclick="loadFromSaveCode()" style="margin-top:10px;">💾 کد سیو دارم</button>
+            <p style="margin-top:12px;font-size:10px;color:#555;">ورژن ۲۰۲۶ | ❤️ گروه Gamer</p>
+        </div>
+    </div>
+
+    <!-- صفحه ورود کد سیو -->
+    <div class="screen" id="saveCodeScreen">
+        <div class="card" style="text-align:center;">
+            <h2>💾 ورود کد سیو</h2>
+            <p style="color:var(--text2);margin:10px 0;">کد سیو خود را وارد کنید</p>
+            <textarea id="saveCodeInput" placeholder="کد سیو را اینجا بچسبانید..."></textarea>
+            <button class="btn accent" onclick="restoreFromSaveCode()" style="margin-top:10px;">✅ بازیابی</button>
+            <button class="btn sm" onclick="goToScreen('splashScreen')" style="margin-top:8px;">🔙 بازگشت</button>
+        </div>
+    </div>
+
+    <!-- صفحه شماره تلفن -->
+    <div class="screen" id="phoneScreen">
+        <div class="card" style="text-align:center;">
+            <h2>📱 ورود به بازی</h2>
+            <p style="color:var(--text2);margin:10px 0;">لطفاً شماره تلفن خود را وارد کنید</p>
+            <input type="tel" id="phoneInput" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="11" style="direction:ltr;">
+            <p id="phoneError" style="color:var(--accent2);font-size:12px;display:none;">⛔ این شماره مسدود شده است!</p>
+            <button class="btn" onclick="submitPhone()" style="margin-top:15px;">✅ تأیید و ادامه</button>
+            <button class="btn sm" onclick="goToScreen('splashScreen')" style="margin-top:10px;background:transparent;">🔙 بازگشت</button>
+            <p style="margin-top:12px;font-size:10px;color:#444;">🔑 <span onclick="showAdminLogin()" style="color:var(--accent);cursor:pointer;">پنل مدیریت</span></p>
+        </div>
+    </div>
+
+    <!-- صفحه نام مربی -->
+    <div class="screen" id="coachScreen">
+        <div class="card" style="text-align:center;">
+            <h2>👤 نام مربی</h2>
+            <p style="color:var(--text2);margin:10px 0;">نام مربی خود را انتخاب کنید</p>
+            <input type="text" id="coachNameInput" placeholder="مثال: علی">
+            <button class="btn" onclick="submitCoachName()" style="margin-top:15px;">✅ ادامه</button>
+        </div>
+    </div>
+
+    <!-- ادامه صفحات مثل قبلی -->
+    <div class="screen" id="leagueScreen">
+        <div class="card" style="text-align:center;">
+            <h2>🏆 انتخاب لیگ</h2>
+            <p style="color:var(--text2);margin:10px 0;">لیگ و تیم مورد نظر را انتخاب کنید</p>
+            <select id="leagueSelect" onchange="updateTeamList()">
+                <option value="">-- انتخاب لیگ --</option>
+                <option value="iran">🇮🇷 لیگ برتر ایران</option>
+                <option value="england">🏴󠁧󠁢󠁥󠁮󠁧󠁿 لیگ برتر انگلیس</option>
+                <option value="spain">🇪🇸 لالیگا اسپانیا</option>
+                <option value="italy">🇮🇹 سری آ ایتالیا</option>
+                <option value="germany">🇩🇪 بوندسلیگا آلمان</option>
+                <option value="france">🇫🇷 لیگ ۱ فرانسه</option>
+            </select>
+            <div id="teamListContainer" style="margin-top:15px;display:none;">
+                <p style="color:var(--text2);">یک تیم انتخاب کنید:</p>
+                <div id="teamList" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;"></div>
+            </div>
+            <p id="teamSelected" style="color:var(--accent);font-weight:bold;margin-top:10px;display:none;"></p>
+            <button class="btn" id="leagueContinueBtn" onclick="goToScreen('signatureScreen')" style="margin-top:15px;display:none;">✅ ادامه به امضای دیجیتال</button>
+        </div>
+    </div>
+
+    <div class="screen" id="signatureScreen">
+        <div class="card" style="text-align:center;">
+            <h2>✍️ امضای دیجیتال</h2>
+            <p style="color:var(--text2);margin:10px 0;">
+                <span id="coachNameDisplay">--------</span> ای مربی عزیز، امضای خود را بزنید
+            </p>
+            <canvas id="signatureCanvas" width="320" height="160"></canvas>
+            <div style="margin-top:10px;">
+                <button class="btn sm danger" onclick="clearSignature()">🗑️ پاک کردن</button>
+                <button class="btn sm accent" onclick="confirmSignature()">✅ تأیید امضا</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="gameScreen">
+        <div style="width:100%;max-width:550px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                <h2 style="margin:0;font-size:22px;">⚽ Mange Score</h2>
+                <div>
+                    <span class="badge badge-gold">💎 <span id="diamondCount">100</span></span>
+                    <span class="badge badge-accent">🪙 <span id="coinCount">5000</span></span>
+                </div>
+            </div>
+            <p style="text-align:center;color:var(--accent);font-size:13px;">👤 مربی: <span id="gameCoachName">---</span> | تیم: <span id="gameTeamName">---</span></p>
+            <div class="menu-grid" style="margin-top:10px;">
+                <div class="menu-item" onclick="openTransferMarket()"><span class="icon">🛒</span>ترنسفر مارکت</div>
+                <div class="menu-item" onclick="openLeagueTable()"><span class="icon">📊</span>جدول لیگ</div>
+                <div class="menu-item" onclick="openMatchScreen()"><span class="icon">⚽</span>شروع بازی</div>
+                <div class="menu-item" onclick="openAboutUs()"><span class="icon">ℹ️</span>درباره ما</div>
+                <div class="menu-item" onclick="openDailyReward()"><span class="icon">🎁</span>جایزه روزانه</div>
+                <div class="menu-item" onclick="openSquadScreen()"><span class="icon">👥</span>ترکیب تیم</div>
+            </div>
+            <!-- دکمه کد سیو -->
+            <button class="btn sm" onclick="generateSaveCode()" style="display:block;margin:15px auto;">💾 دریافت کد سیو (ذخیره پیشرفت)</button>
+            <div id="gameContentArea" style="margin-top:10px;text-align:center;"></div>
+            <p style="text-align:center;margin-top:10px;font-size:9px;color:#444;" onclick="showAdminLogin()">🔑 پنل مدیریت</p>
+        </div>
+    </div>
+
+    <div class="overlay" id="modalOverlay" style="display:none;" onclick="closeModal(event)">
+        <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
+    </div>
+    <div class="toast" id="toast" style="display:none;"></div>
+
+    <script>
+        const ADMIN_PASSWORD = "G@m3r!2o26";
+        let currentUser = null;
+        let allUsers = JSON.parse(localStorage.getItem('mangeScore_users') || '{}');
+        let selectedLeague = null;
+        let selectedTeam = null;
+        let coachName = '';
+        let signatureData = null;
+
+        const leaguesData = {
+            iran: {
+                name: 'لیگ برتر ایران',
+                teams: ['پرسپولیس', 'استقلال', 'سپاهان', 'تراکتور', 'فولاد', 'گل‌گهر', 'مس رفسنجان', 'ذوب‌آهن', 'نساجی',
+                    'هوادار'
+                ],
+                colors: ['#e53935', '#1565c0', '#f9a825', '#c62828', '#d32f2f', '#1b5e20', '#ff6f00', '#388e3c', '#e65100',
+                    '#5d4037'
+                ],
+                tier: 1
+            },
+            england: {
+                name: 'لیگ برتر انگلیس',
+                teams: ['منچسترسیتی', 'آرسنال', 'لیورپول', 'چلسی', 'منچستریونایتد', 'تاتنهام', 'نیوکاسل', 'برایتون',
+                    'استون ویلا', 'وستهم'
+                ],
+                colors: ['#6cabdd', '#ef0107', '#c8102e', '#034694', '#da291c', '#132257', '#241f20', '#0057b8', '#670e36',
+                    '#7a263a'
+                ],
+                tier: 1
+            },
+            spain: {
+                name: 'لالیگا اسپانیا',
+                teams: ['رئال مادرید', 'بارسلونا', 'اتلتیکو مادرید', 'سویا', 'ویارئال', 'رئال سوسیداد', 'بیلبائو', 'والنسیا',
+                    'بتیس', 'اوساسونا'
+                ],
+                colors: ['#febe10', '#a50044', '#e41b23', '#d50000', '#f1c40f', '#0b4b9e', '#ee2523', '#f1c40f', '#00934a',
+                    '#c41230'
+                ],
+                tier: 1
+            },
+            italy: {
+                name: 'سری آ ایتالیا',
+                teams: ['یوونتوس', 'اینتر', 'میلان', 'ناپولی', 'رم', 'لاتزیو', 'آتالانتا', 'فیورنتینا', 'تورینو',
+                    'بولونیا'],
+                colors: ['#000000', '#0068b4', '#e31d2c', '#12a0d8', '#8e1f2f', '#87ceeb', '#1b519b', '#5e2b7a', '#8b2e34',
+                    '#c41230'
+                ],
+                tier: 1
+            },
+            germany: {
+                name: 'بوندسلیگا آلمان',
+                teams: ['بایرن مونیخ', 'دورتموند', 'لایپزیگ', 'بایرلورکوزن', 'وولفسبورگ', 'مونشن‌گلادباخ', 'فرانکفورت',
+                    'اشتوتگارت', 'هوفنهایم', 'فرایبورگ'
+                ],
+                colors: ['#dc052d', '#fde100', '#dd1a2e', '#e32219', '#65b32e', '#000000', '#e6000f', '#e32219', '#1c63b7',
+                    '#cc0000'
+                ],
+                tier: 1
+            },
+            france: {
+                name: 'لیگ ۱ فرانسه',
+                teams: ['پاریسن‌ژرمن', 'مارسی', 'لیون', 'موناکو', 'لیل', 'رن', 'نیس', 'لانس', 'استراسبورگ', 'نانت'],
+                colors: ['#004170', '#2e91d3', '#1e3a8a', '#e31b23', '#e31b23', '#e31b23', '#e31b23', '#f7d117', '#e31b23',
+                    '#f1c40f'
+                ],
+                tier: 1
+            }
+        };
+
+        // ==================== ۱۰۰۰ بازیکن ====================
+        function generate1000Players() {
+            const firstNames = ['علی', 'محمد', 'حسین', 'مهدی', 'امیر', 'سعید', 'رضا', 'فرهاد', 'مجید', 'احمد', 'بهروز', 'کامران',
+                'آرش', 'شاهین', 'پویا', 'آرمین', 'سامان', 'نیما', 'آیدین', 'پارسا', 'کارلوس', 'لوئیس', 'پدرو', 'تیاگو', 'دیگو',
+                'مارکو', 'لوکا', 'متئو', 'آندره', 'نیکولو', 'الکس', 'دنی', 'تونی', 'سرخیو', 'مارتین', 'اریک', 'فلیپه', 'کریس',
+                'جیسون', 'مایلز'
+            ];
+            const lastNames = ['طارمی', 'آزمون', 'جهانبخش', 'قایدی', 'محبی', 'عزت‌اللهی', 'چشمی', 'خلیل‌زاده', 'کنعانی',
+                'بیرانوند', 'رودریگز', 'سانچز', 'فرناندز', 'تورس', 'سیلوا', 'مارتینز', 'لوپز', 'هرناندز', 'گارسیا', 'رامیرز',
+                'مولر', 'اشنایدر', 'بکر', 'واگنر', 'فیشر', 'یانسون', 'پیترسن', 'نیلسن', 'کریستنسن', 'اندرسن', 'اسمیت', 'جانسون',
+                'ویلسون', 'براون', 'تیلور', 'توماس', 'دیویس', 'رابرتس', 'واکر', 'رایت', 'علی‌پور', 'نوراللهی', 'رضاییان',
+                'حسینی', 'جباری', 'کریمی', 'دایی', 'باقری', 'مهدوی', 'کاظمی'
+            ];
+            const positions = ['GK', 'DEF', 'DEF', 'DEF', 'DEF', 'MID', 'MID', 'MID', 'MID', 'FWD', 'FWD', 'FWD', 'FWD'];
+            const players = [];
+            for (let i = 0; i < 1000; i++) {
+                const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const rating = Math.floor(Math.random() * 60) + 40; // 40 تا 99
+                const pos = positions[Math.floor(Math.random() * positions.length)];
+                const bp = rating * 20000 + Math.floor(Math.random() * 100000);
+                players.push({
+                    id: i,
+                    name: fn + ' ' + ln,
+                    position: pos,
+                    rating: rating,
+                    basePrice: bp,
+                    currentPrice: bp,
+                    owned: false,
+                    form: Math.floor(Math.random() * 5) + 1
+                });
+            }
+            // ستاره‌های معروف
+            const stars = [
+                { n: 'مسی', r: 94, p: 'FWD' }, { n: 'رونالدو', r: 93, p: 'FWD' }, { n: 'امباپه', r: 95, p: 'FWD' },
+                { n: 'هالند', r: 96, p: 'FWD' }, { n: 'وینیسیوس', r: 92, p: 'FWD' }, { n: 'صلاح', r: 91, p: 'FWD' },
+                { n: 'دی‌بروینه', r: 92, p: 'MID' }, { n: 'بلینگام', r: 91, p: 'MID' }, { n: 'رودری', r: 90, p: 'MID' },
+                { n: 'کورتوا', r: 90, p: 'GK' }, { n: 'نویر', r: 89, p: 'GK' }, { n: 'طارمی', r: 84, p: 'FWD' },
+                { n: 'آزمون', r: 83, p: 'FWD' }, { n: 'فن‌دایک', r: 90, p: 'DEF' }, { n: 'دیاز', r: 89, p: 'DEF' }
+            ];
+            stars.forEach((s, i) => {
+                players[i] = {
+                    id: i,
+                    name: s.n,
+                    position: s.p,
+                    rating: s.r,
+                    basePrice: s.r * 25000,
+                    currentPrice: s.r * 25000,
+                    owned: false,
+                    form: Math.floor(Math.random() * 3) + 3
+                };
+            });
+            return players;
+        }
+
+        let globalPlayers = JSON.parse(localStorage.getItem('mangeScore_players') || 'null');
+        if (!globalPlayers || globalPlayers.length < 500) {
+            globalPlayers = generate1000Players();
+            localStorage.setItem('mangeScore_players', JSON.stringify(globalPlayers));
+        }
+
+        // ==================== SAVE CODE SYSTEM ====================
+        function generateSaveCode() {
+            const data = getGameData();
+            if (!data) { showToast('⚠️ ابتدا بازی را شروع کنید'); return; }
+            // Encode game data to base64
+            const jsonStr = JSON.stringify(data);
+            const code = btoa(unescape(encodeURIComponent(jsonStr)));
+            openModal('<h3>💾 کد سیو شما</h3>' +
+                '<p style="text-align:center;font-size:11px;">این کد را کپی و نگهداری کنید</p>' +
+                '<textarea style="height:120px;font-size:10px;direction:ltr;" readonly>' + code + '</textarea>' +
+                '<button class="btn sm" onclick="copySaveCode()" style="margin:8px;">📋 کپی کد</button>' +
+                '<button class="btn sm" onclick="closeModal()" style="display:block;margin:5px auto;">بستن</button>');
+            window.copySaveCode = function() {
+                const ta = document.querySelector('#modalContent textarea');
+                ta.select();
+                document.execCommand('copy');
+                showToast('✅ کد کپی شد!');
+            };
+        }
+
+        function loadFromSaveCode() {
+            goToScreen('saveCodeScreen');
+        }
+
+        function restoreFromSaveCode() {
+            const code = document.getElementById('saveCodeInput').value.trim();
+            if (!code) { showToast('⚠️ کد را وارد کنید'); return; }
+            try {
+                const jsonStr = decodeURIComponent(escape(atob(code)));
+                const data = JSON.parse(jsonStr);
+                if (!data.phone || !data.coachName) throw new Error('Invalid');
+                const key = 'mangeScore_gameData_' + data.phone;
+                localStorage.setItem(key, JSON.stringify(data));
+                localStorage.setItem('mangeScore_currentPhone', data.phone);
+                if (!allUsers[data.phone]) {
+                    allUsers[data.phone] = { phone: data.phone, dateJoined: new Date().toISOString(), banned: false };
+                    localStorage.setItem('mangeScore_users', JSON.stringify(allUsers));
+                }
+                currentUser = { phone: data.phone };
+                coachName = data.coachName;
+                selectedTeam = data.team;
+                selectedLeague = data.league;
+                showToast('✅ بازی با موفقیت بازیابی شد!');
+                setTimeout(() => {
+                    updateGameScreenInfo();
+                    goToScreen('gameScreen');
+                }, 600);
+            } catch (e) {
+                showToast('⛔ کد نامعتبر است!');
+            }
+        }
+
+        function checkSaveCode() {
+            const data = getGameData();
+            if (data && data.coachName) {
+                // پرسش: آیا کد سیو دارید؟
+                openModal('<h3>💾 بازگشت به بازی</h3>' +
+                    '<p style="text-align:center;">آیا کد سیو دارید یا می‌خواهید ادامه دهید؟</p>' +
+                    '<button class="btn accent" onclick="closeModal();goToScreen(\'gameScreen\')" style="display:block;margin:8px auto;">▶️ ادامه بازی قبلی</button>' +
+                    '<button class="btn" onclick="closeModal();goToScreen(\'saveCodeScreen\')" style="display:block;margin:8px auto;">💾 ورود کد سیو</button>' +
+                    '<button class="btn sm" onclick="closeModal();goToScreen(\'phoneScreen\')" style="display:block;margin:5px auto;">🆕 شروع جدید</button>');
+            } else {
+                // کاربر جدید
+                openModal('<h3>💾 کد سیو</h3>' +
+                    '<p style="text-align:center;">آیا کد سیو دارید؟</p>' +
+                    '<button class="btn" onclick="closeModal();loadFromSaveCode()" style="display:block;margin:8px auto;">💾 بله، کد سیو دارم</button>' +
+                    '<button class="btn accent" onclick="closeModal();goToScreen(\'phoneScreen\')" style="display:block;margin:8px auto;">🆕 خیر، جدید شروع می‌کنم</button>');
+            }
+        }
+
+        // ==================== NAVIGATION ====================
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+                if (screenId === 'signatureScreen') {
+                    document.getElementById('coachNameDisplay').textContent = coachName || '--------';
+                    initSignatureCanvas();
+                }
+                if (screenId === 'gameScreen') {
+                    updateGameScreenInfo();
+                    document.getElementById('gameContentArea').innerHTML = '';
+                }
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function showToast(msg, duration = 2500) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => { t.style.display = 'none'; }, duration);
+        }
+
+        function submitPhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (phone.length < 10 || !/^0\d{9,10}$/.test(phone)) { showToast('⚠️ شماره معتبر وارد کنید'); return; }
+            if (allUsers[phone] && allUsers[phone].banned) { document.getElementById('phoneError').style.display =
+                    'block';
+                showToast('⛔ شماره مسدود شده!'); return; }
+            if (!allUsers[phone]) { allUsers[phone] = { phone, dateJoined: new Date().toISOString(), banned: false };
+                localStorage.setItem('mangeScore_users', JSON.stringify(allUsers)); }
+            currentUser = { phone };
+            localStorage.setItem('mangeScore_currentPhone', phone);
+            document.getElementById('phoneError').style.display = 'none';
+            showToast('✅ تأیید شد!');
+            setTimeout(() => goToScreen('coachScreen'), 500);
+        }
+
+        function submitCoachName() {
+            const name = document.getElementById('coachNameInput').value.trim();
+            if (!name || name.length < 2) { showToast('⚠️ نام معتبر وارد کنید'); return; }
+            coachName = name;
+            showToast('👋 سلام ' + name + '!');
+            setTimeout(() => goToScreen('leagueScreen'), 500);
+        }
+
+        function updateTeamList() {
+            const lk = document.getElementById('leagueSelect').value;
+            if (!lk || !leaguesData[lk]) { document.getElementById('teamListContainer').style.display = 'none';
+                document.getElementById('leagueContinueBtn').style.display = 'none'; return; }
+            selectedLeague = lk;
+            const lg = leaguesData[lk];
+            const ct = document.getElementById('teamList');
+            ct.innerHTML = '';
+            lg.teams.forEach((t, i) => {
+                const d = document.createElement('div');
+                d.className = 'player-card';
+                d.style.cssText =
+                    `background:${lg.colors[i]};color:#fff;padding:10px;font-weight:bold;font-size:12px;min-width:75px;text-align:center;`;
+                d.textContent = t;
+                d.onclick = function() { selectTeam(t, lk, d); };
+                ct.appendChild(d);
+            });
+            document.getElementById('teamListContainer').style.display = 'block';
+            document.getElementById('leagueContinueBtn').style.display = 'none';
+            document.getElementById('teamSelected').style.display = 'none';
+            selectedTeam = null;
+        }
+
+        function selectTeam(t, lk, el) { selectedTeam = t;
+            selectedLeague = lk;
+            document.getElementById('teamSelected').textContent = '✅ ' + t;
+            document.getElementById('teamSelected').style.display = 'block';
+            document.getElementById('leagueContinueBtn').style.display = 'inline-block';
+            document.querySelectorAll('#teamList .player-card').forEach(e => { e.style.border = '2px solid transparent';
+                e.style.transform = 'scale(1)'; }); if (el) { el.style.border = '3px solid #f0c040';
+                el.style.transform = 'scale(1.06)'; } }
+
+        function initSignatureCanvas() {
+            const c = document.getElementById('signatureCanvas');
+            if (!c) return;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            let drawing = false;
+            const gp = e => { const r = c.getBoundingClientRect(),
+                    cx = e.touches ? e.touches[0].clientX : e.clientX,
+                    cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; };
+
+            function s(e) { e.preventDefault();
+                drawing = true;
+                const p = gp(e);
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y); }
+
+            function m(e) { e.preventDefault(); if (!drawing) return;
+                const p = gp(e);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke(); }
+
+            function en() { drawing = false; }
+            c.addEventListener('mousedown', s);
+            c.addEventListener('mousemove', m);
+            c.addEventListener('mouseup', en);
+            c.addEventListener('mouseleave', en);
+            c.addEventListener('touchstart', s, { passive: false });
+            c.addEventListener('touchmove', m, { passive: false });
+            c.addEventListener('touchend', en);
+        }
+
+        function clearSignature() { const c = document.getElementById('signatureCanvas');
+            c.getContext('2d').fillStyle = '#fff';
+            c.getContext('2d').fillRect(0, 0, c.width, c.height); }
+
+        function confirmSignature() { signatureData = document.getElementById('signatureCanvas').toDataURL();
+            showToast('✅ امضا ثبت شد!');
+            initGameData();
+            setTimeout(() => goToScreen('gameScreen'), 600); }
+
+        function getStorageKey() { return 'mangeScore_gameData_' + (currentUser?.phone || localStorage.getItem(
+                'mangeScore_currentPhone')); }
+
+        function getGameData() { return JSON.parse(localStorage.getItem(getStorageKey()) || 'null'); }
+
+        function saveGameData(data) { localStorage.setItem(getStorageKey(), JSON.stringify(data)); }
+
+        function initGameData() {
+            let data = getGameData();
+            if (!data) {
+                const sq = [];
+                const pn = ['GK', 'GK', 'DEF', 'DEF', 'DEF', 'DEF', 'MID', 'MID', 'MID', 'MID', 'FWD', 'FWD', 'FWD',
+                    'FWD', 'FWD'
+                ];
+                for (let i = 0; i < 15; i++) sq.push({ id: 's' + i, name: 'بازیکن پیشفرض ' + (i + 1), position: pn[i],
+                    rating: Math.floor(Math.random() * 20) + 60, basePrice: 100000, currentPrice: 100000, owned: true,
+                    form: 3 });
+                data = { phone: currentUser.phone, coachName, league: selectedLeague, team: selectedTeam,
+                    signature: signatureData, diamonds: 100, coins: 5000, squad: sq, leagueStandings: generateStandings(
+                        selectedLeague, selectedTeam), matchesPlayed: 0, totalMatches: 30, tier: 1,
+                    dailyRewardDate: '' };
+            }
+            saveGameData(data);
+            updateGameScreenInfo();
+        }
+
+        function updateGameScreenInfo() {
+            const d = getGameData();
+            if (!d) return;
+            document.getElementById('diamondCount').textContent = d.diamonds || 0;
+            document.getElementById('coinCount').textContent = (d.coins || 0).toLocaleString();
+            document.getElementById('gameCoachName').textContent = d.coachName || '---';
+            document.getElementById('gameTeamName').textContent = d.team || '---';
+        }
+
+        function generateStandings(lk, ut) {
+            if (!lk || !leaguesData[lk]) return [];
+            return leaguesData[lk].teams.map((t, i) => ({ name: t, played: 0, wins: 0, draws: 0, losses: 0, gf: 0,
+                ga: 0, gd: 0, points: 0, isUser: t === ut, color: leaguesData[lk].colors[i] }));
+        }
+
+        function openModal(h) { document.getElementById('modalContent').innerHTML = h;
+            document.getElementById('modalOverlay').style.display = 'flex'; }
+
+        function closeModal(e) { if (e && e.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').style.display = 'none';
+            updateGameScreenInfo(); }
+
+        function getOvrClass(r) { return r >= 85 ? 'ovr-high' : r >= 70 ? 'ovr-mid' : 'ovr-low'; }
+
+        // ==================== TRANSFER MARKET با ۱۰۰۰ بازیکن ====================
+        function openTransferMarket() {
+            const data = getGameData();
+            if (!data) { showToast('⚠️ ابتدا بازی را شروع کنید'); return; }
+            globalPlayers.forEach(p => { const fl = (Math.random() - 0.45) * p.basePrice * 0.3;
+                p.currentPrice = Math.max(p.basePrice * 0.5, Math.round(p.basePrice + fl));
+                p.form = Math.max(1, Math.min(5, Math.floor(Math.random() * 5) + 1)); });
+            localStorage.setItem('mangeScore_players', JSON.stringify(globalPlayers));
+            const ownedIds = data.squad.map(p => p.id);
+            const sorted = [...globalPlayers].sort((a, b) => b.rating - a.rating);
+            let html = '<h3>🛒 ترنسفر مارکت (۱۰۰۰ بازیکن)</h3>';
+            html += '<p style="text-align:center;">💰 سکه: <b>' + data.coins.toLocaleString() + '</b></p>';
+            html += '<div style="max-height:50vh;overflow-y:auto;"><table>';
+            html += '<thead><tr><th>نام</th><th>پست</th><th>اورال</th><th>قیمت</th><th>خرید</th></tr></thead><tbody>';
+            sorted.slice(0, 200).forEach(p => { // نمایش ۲۰۰ بازیکن برتر
+                const owned = ownedIds.includes(p.id);
+                html += `<tr>
+          <td>${p.name}</td><td>${p.position}</td>
+          <td><span class="overall-rating ${getOvrClass(p.rating)}">${p.rating}</span></td>
+          <td>🪙${p.currentPrice.toLocaleString()}</td>
+          <td>${owned?'<span style="color:var(--accent);">✅</span>':
+          `<button class="btn sm accent" onclick="buyPlayer(${p.id})">خرید</button>`}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            html += '<p style="text-align:center;font-size:10px;">🟢 ۸۵+ | 🟠 ۷۰-۸۴ | 🔴 ۴۰-۶۹</p>';
+            html += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:10px auto;">بستن</button>';
+            openModal(html);
+            window.buyPlayer = function(pid) {
+                const d = getGameData();
+                const p = globalPlayers.find(x => x.id === pid);
+                if (!p) return;
+                if (d.squad.find(x => x.id === pid)) { showToast('⚠️ این بازیکن را دارید'); return; }
+                if (d.coins < p.currentPrice) { showToast('⚠️ سکه کافی نیست'); return; }
+                if (d.squad.length >= 22) { showToast('⚠️ حداکثر ۲۲ بازیکن'); return; }
+                d.coins -= p.currentPrice;
+                d.squad.push({ ...p, owned: true, id: 'b' + Date.now() });
+                saveGameData(d);
+                updateGameScreenInfo();
+                showToast('✅ ' + p.name + ' خریداری شد');
+                openTransferMarket();
+            };
+        }
+
+        function openLeagueTable() {
+            const d = getGameData();
+            if (!d || !d.leagueStandings) { showToast('⚠️ ابتدا بازی را شروع کنید'); return; }
+            const st = [...d.leagueStandings].sort((a, b) => b.points - a.points || b.gd - a.gd);
+            let h = '<h3>📊 ' + (leaguesData[d.league]?.name || '') + '</h3>';
+            h += '<p style="text-align:center;">هفته ' + d.matchesPlayed + ' از ' + d.totalMatches + '</p>';
+            h += '<div style="max-height:45vh;overflow-y:auto;"><table>';
+            h +=
+                '<thead><tr><th>#</th><th>تیم</th><th>بازی</th><th>برد</th><th>مساوی</th><th>باخت</th><th>گل±</th><th>امتیاز</th></tr></thead><tbody>';
+            st.forEach((t, i) => { h +=
+                    `<tr style="${t.isUser?'background:rgba(240,192,64,0.15);font-weight:bold;':''}"><td>${i+1}</td><td>${t.isUser?'⭐':''}${t.name}</td><td>${t.played}</td><td class="win-mark">${t.wins}</td><td class="draw-mark">${t.draws}</td><td class="lose-mark">${t.losses}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td style="color:var(--gold);">${t.points}</td></tr>`; });
+            h += '</tbody></table></div>';
+            h += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:10px auto;">بستن</button>';
+            openModal(h);
+        }
+
+        function openMatchScreen() {
+            const d = getGameData();
+            if (!d) return;
+            if (d.matchesPlayed >= d.totalMatches) { handleEndOfSeason(d); return; }
+            const opps = d.leagueStandings.filter(t => t.name !== d.team);
+            if (!opps.length) { showToast('⚠️ حریفی نیست'); return; }
+            const opp = opps[Math.floor(Math.random() * opps.length)];
+            let h = '<h3>⚽ بازی</h3><div class="scoreboard"><span>' + d.team + '</span><span>VS</span><span>' + opp.name +
+                '</span></div>';
+            h += '<div style="text-align:center;"><span id="matchMinute">⏱️ دقیقه ۰</span></div>';
+            h += '<div id="matchScore" style="text-align:center;font-size:24px;">۰ - ۰</div>';
+            h += '<div class="commentary-box" id="commentaryBox">📢 گزارشگر: بازی شروع می‌شود...</div>';
+            h += '<button class="btn" id="startMatchBtn" onclick="simulateMatch(\'' + d.team + '\',\'' + opp.name +
+                '\')" style="display:block;margin:10px auto;">🎮 شروع بازی</button>';
+            h += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:5px auto;">بستن</button>';
+            openModal(h);
+        }
+
+        function simulateMatch(ut, on) {
+            const btn = document.getElementById('startMatchBtn');
+            if (btn) btn.style.display = 'none';
+            const box = document.getElementById('commentaryBox'),
+                minEl = document.getElementById('matchMinute'),
+                scEl = document.getElementById('matchScore');
+            let ug = 0,
+                og = 0,
+                min = 0;
+            const d = getGameData();
+            const sqr = d.squad.reduce((s, p) => s + p.rating, 0) / Math.max(1, d.squad.length);
+            const adv = sqr / (60 + Math.random() * 25);
+            const comms = ['پاسکاری عالی', 'بازی در میانه', 'موقعیت خطرناک', 'دفاع محکم', 'سانتر', 'کرنر', 'شوت', 'پاس عمقی',
+                'آفساید', 'برخورد'
+            ];
+
+            function tick() {
+                if (min >= 90) { box.innerHTML += '<br>📢 <b>پایان! ' + ug + ' - ' + og + '</b>';
+                    minEl.textContent = '⏱️ پایان';
+                    finalizeMatch(d, ut, on, ug, og);
+                    setTimeout(() => { closeModal();
+                        updateGameScreenInfo(); }, 2000); return; }
+                min += Math.floor(Math.random() * 8) + 2;
+                if (min > 90) min = 90;
+                minEl.textContent = '⏱️ دقیقه ' + min;
+                if (Math.random() < 0.08 * adv) { ug++;
+                    scEl.textContent = ug + ' - ' + og;
+                    box.innerHTML += '<br>🥅 <b style="color:var(--accent);">گللل ' + ut + '!</b>'; }
+                if (Math.random() < 0.06) { og++;
+                    scEl.textContent = ug + ' - ' + og;
+                    box.innerHTML += '<br>🥅 <b style="color:var(--accent2);">گل ' + on + '!</b>'; }
+                box.innerHTML += '<br>📢 دقیقه ' + min + ': ' + comms[Math.floor(Math.random() * comms.length)];
+                box.scrollTop = box.scrollHeight;
+                setTimeout(tick, 350 + Math.random() * 500);
+            }
+            setTimeout(tick, 400);
+        }
+
+        function finalizeMatch(d, ut, on, ug, og) {
+            const us = d.leagueStandings.find(t => t.name === ut),
+                os = d.leagueStandings.find(t => t.name === on);
+            if (us) { us.played++;
+                us.gf += ug;
+                us.ga += og;
+                us.gd = us.gf - us.ga; if (ug > og) { us.wins++;
+                    us.points += 3; } else if (ug === og) { us.draws++;
+                    us.points += 1; } else { us.losses++; } }
+            if (os) { os.played++;
+                os.gf += og;
+                os.ga += ug;
+                os.gd = os.gf - os.ga; if (og > ug) { os.wins++;
+                    os.points += 3; } else if (og === ug) { os.draws++;
+                    os.points += 1; } else { os.losses++; } }
+            d.matchesPlayed++;
+            if (ug > og) { d.coins += 500;
+                d.diamonds += 5; } else if (ug === og) { d.coins += 200;
+                d.diamonds += 2; } else { d.coins += 50; }
+            saveGameData(d);
+            if (d.matchesPlayed >= d.totalMatches) setTimeout(() => handleEndOfSeason(d), 2200);
+        }
+
+        function handleEndOfSeason(d) {
+            const st = [...d.leagueStandings].sort((a, b) => b.points - a.points || b.gd - a.gd);
+            const pos = st.findIndex(t => t.isUser) + 1;
+            if (pos <= 5) { showToast('🎉 ماندید (رتبه ' + pos + ')');
+                d.coins += 2000;
+                d.diamonds += 20;
+                d.leagueStandings = generateStandings(d.league, d.team);
+                d.matchesPlayed = 0; } else if (d.tier >= 3) { showToast('💀 سقوط کامل!');
+                d.tier = 1;
+                d.matchesPlayed = 0;
+                d.leagueStandings = generateStandings(d.league, d.team);
+                d.diamonds = Math.max(0, d.diamonds - 30);
+                d.coins = Math.max(500, d.coins - 2000); } else { showToast('📉 سقوط');
+                d.tier++;
+                d.matchesPlayed = 0;
+                d.leagueStandings = generateStandings(d.league, d.team); }
+            saveGameData(d);
+            updateGameScreenInfo();
+        }
+
+        function openSquadScreen() {
+            const d = getGameData();
+            if (!d) return;
+            let h = '<h3>👥 ترکیب تیم (' + d.squad.length + ' بازیکن)</h3>';
+            h += '<div style="max-height:45vh;overflow-y:auto;"><table>';
+            h += '<thead><tr><th>نام</th><th>پست</th><th>اورال</th><th>فرم</th></tr></thead><tbody>';
+            d.squad.forEach(p => { h +=
+                    `<tr><td>${p.name}</td><td>${p.position}</td><td><span class="overall-rating ${getOvrClass(p.rating)}">${p.rating}</span></td><td>${'⭐'.repeat(p.form||3)}</td></tr>`; });
+            h += '</tbody></table></div>';
+            h += '<button class="btn sm accent" onclick="autoSelectSquad()" style="margin:8px;">🤖 ترکیب خودکار</button>';
+            h += '<p id="autoResult" style="font-size:11px;color:var(--accent);"></p>';
+            h += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:8px auto;">بستن</button>';
+            openModal(h);
+            window.autoSelectSquad = function() {
+                const dd = getGameData();
+                const best = {};
+                dd.squad.forEach(p => { if (!best[p.position] || p.rating > best[p.position].rating) best[p.position] =
+                        p; });
+                let r = 'بهترین‌ها: ';
+                for (const [pos, pl] of Object.entries(best)) r += pos + ':' + pl.name + ' ';
+                document.getElementById('autoResult').textContent = r;
+                showToast('✅ انتخاب شد');
+            };
+        }
+
+        function openDailyReward() {
+            const d = getGameData();
+            const today = new Date().toDateString();
+            if (d && d.dailyRewardDate === today) { showToast('🎁 امروز دریافت کرده‌اید'); return; }
+            let h = '<h3>🎁 چرخنده جایزه</h3><p style="text-align:center;font-size:10px;">💎 الماس شانس ۱٪</p>';
+            h +=
+                '<div style="position:relative;display:flex;justify-content:center;margin:10px;"><div class="spinner-pointer"></div><div class="spinner-wheel" id="spinnerWheel" style="background:conic-gradient(#ff5252 0deg 3.6deg,#ff9800 3.6deg 40deg,#4caf50 40deg 90deg,#2196f3 90deg 140deg,#9c27b0 140deg 180deg,#ffeb3b 180deg 220deg,#00bcd4 220deg 260deg,#e91e63 260deg 300deg,#8bc34a 300deg 340deg,#ff5722 340deg 360deg);"></div></div>';
+            h += '<div id="rewardResult" style="text-align:center;min-height:25px;color:var(--gold);"></div>';
+            h +=
+                '<button class="btn" id="spinBtn" onclick="spinWheel()" style="display:block;margin:8px auto;">🎰 چرخوندن</button>';
+            h += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:5px auto;">بستن</button>';
+            openModal(h);
+        }
+
+        function spinWheel() {
+            const btn = document.getElementById('spinBtn');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            const w = document.getElementById('spinnerWheel'),
+                r = document.getElementById('rewardResult');
+            const deg = Math.random() * 360;
+            w.style.transform = 'rotate(' + (5 * 360 + deg) + 'deg)';
+            r.textContent = '⏳ چرخش...';
+            setTimeout(() => {
+                let reward;
+                const d = deg % 360;
+                if (d < 3.6) reward = { type: 'diamond', amt: 50, msg: '💎 جکپات ۵۰ الماس!' };
+                else if (d < 40) reward = { type: 'coin', amt: 3000, msg: '🪙 ۳۰۰۰ سکه' };
+                else if (d < 90) reward = { type: 'coin', amt: 1500, msg: '🪙 ۱۵۰۰ سکه' };
+                else if (d < 140) reward = { type: 'coin', amt: 2000, msg: '🪙 ۲۰۰۰ سکه' };
+                else if (d < 180) reward = { type: 'coin', amt: 800, msg: '🪙 ۸۰۰ سکه' };
+                else if (d < 220) reward = { type: 'coin', amt: 1000, msg: '🪙 ۱۰۰۰ سکه' };
+                else if (d < 260) reward = { type: 'diamond', amt: 5, msg: '💎 ۵ الماس' };
+                else if (d < 300) reward = { type: 'coin', amt: 500, msg: '🪙 ۵۰۰ سکه' };
+                else if (d < 340) reward = { type: 'diamond', amt: 10, msg: '💎 ۱۰ الماس' };
+                else reward = { type: 'coin', amt: 2000, msg: '🪙 ۲۰۰۰ سکه' };
+                r.textContent = '🎉 ' + reward.msg;
+                const data = getGameData();
+                if (data) { if (reward.type === 'diamond') data.diamonds += reward.amt;
+                    else data.coins += reward.amt;
+                    data.dailyRewardDate = new Date().toDateString();
+                    saveGameData(data);
+                    updateGameScreenInfo(); }
+                btn.disabled = false;
+                btn.textContent = '✅ دریافت شد';
+                showToast(reward.msg);
+            }, 5000);
+        }
+
+        function openAboutUs() {
+            let h = '<h3>ℹ️ درباره ما</h3><div style="text-align:center;line-height:2.2;">';
+            h += '<p>🎮 <b>Mange Score 2026</b></p><p>⚽ تلاش ۲۴ ماهه گروه Gamer</p>';
+            h += '<p>📱 بازی مدیریت فوتبال آنلاین</p><p>🛒 ترنسفر مارکت با ۱۰۰۰ بازیکن</p>';
+            h += '<p>💾 سیستم کد سیو</p><p>🤖 گزارشگر هوش مصنوعی</p>';
+            h += '<p style="color:var(--gold);">❤️ ساخته شده با عشق</p></div>';
+            h += '<button class="btn sm" onclick="closeModal()" style="display:block;margin:10px auto;">بستن</button>';
+            openModal(h);
+        }
+
+        function showAdminLogin() {
+            let h = '<h3>🔑 پنل مدیریت</h3><p>رمز ۱۰ رقمی</p>';
+            h += '<input type="password" id="adminPass" placeholder="رمز">';
+            h += '<button class="btn accent" onclick="verifyAdmin()" style="margin:10px;">ورود</button>';
+            h += '<p id="adminErr" style="color:red;display:none;">⛔ رمز اشتباه</p>';
+            h += '<button class="btn sm" onclick="closeModal()">بستن</button>';
+            openModal(h);
+            window.verifyAdmin = function() { if (document.getElementById('adminPass').value === ADMIN_PASSWORD)
+            openAdminPanel();
+                else document.getElementById('adminErr').style.display = 'block'; };
+        }
+
+        function openAdminPanel() {
+            let h = '<h3>🔑 مدیریت کاربران</h3><div style="max-height:50vh;overflow-y:auto;"><table>';
+            h += '<thead><tr><th>شماره</th><th>تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>';
+            for (const [ph, inf] of Object.entries(allUsers)) h +=
+                `<tr><td>${ph}</td><td>${inf.dateJoined?.slice(0,10)||'-'}</td><td>${inf.banned?'⛔':'✅'}</td><td><button class="btn sm ${inf.banned?'accent':'danger'}" onclick="toggleBan('${ph}',${inf.banned})">${inf.banned?'رفع':'مسدود'}</button></td></tr>`;
+            h += '</tbody></table></div>';
+            h += '<button class="btn sm" onclick="closeModal()">بستن</button>';
+            openModal(h);
+            window.toggleBan = function(ph, cur) { if (allUsers[ph]) { allUsers[ph].banned = !cur;
+                    localStorage.setItem('mangeScore_users', JSON.stringify(allUsers));
+                    showToast(cur ? '🔓 رفع' : '⛔ مسدود');
+                    openAdminPanel(); } };
+        }
+
+        function init() {
+            const sp = localStorage.getItem('mangeScore_currentPhone');
+            if (sp && allUsers[sp] && !allUsers[sp].banned) {
+                currentUser = { phone: sp };
+                const d = getGameData();
+                if (d && d.coachName) {
+                    coachName = d.coachName;
+                    selectedTeam = d.team;
+                    selectedLeague = d.league;
+                    updateGameScreenInfo();
+                    goToScreen('gameScreen');
+                    return;
+                }
+            }
+            goToScreen('splashScreen');
+        }
+        window.addEventListener('DOMContentLoaded', init);
+        console.log('⚽ Mange Score 2026 - ۱۰۰۰ بازیکن + کد سیو');
+    </script>
+</body>
+</html>
